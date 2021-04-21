@@ -1,5 +1,6 @@
 # render_template comes from "jinja"
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for
+import json
 
 # Passes env var name for app to initialize app
 app = Flask(__name__)
@@ -20,8 +21,16 @@ def about():
 @app.route('/your-url', methods=['GET','POST'])
 def your_url():
     if request.method == 'POST':
+        # For storing all shortened URLs
+        urlsDict = {}
+        # Retrieves name of input from home.html, stores in dict
+        urls[request.form['code']] = {'url':request.form['url']}
+        # Save/write to JSON
+        with open('shortened_urls.json','w') as url_file:
+            # Saves url dictionary to url file
+            json.dump(urlsDict, url_file)
         # User's entry to "shortname" gets saved into "nameInput"
         # Variable becomes available in your_url.html
         return render_template('your_url.html', nameInput=request.form['code'])
     else:
-        return "Get request not valid."
+        return redirect(url_for('home'))
