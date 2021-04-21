@@ -17,6 +17,11 @@ def about():
     return "This will be a URL shortener"
 
 # Redirect after shortening URL
-@app.route('/your-url')
+@app.route('/your-url', methods=['GET','POST'])
 def your_url():
-    return render_template('your_url.html', code=request.args['code'])
+    if request.method == 'POST':
+        # User's entry to "shortname" gets saved into "nameInput"
+        # Variable becomes available in your_url.html
+        return render_template('your_url.html', nameInput=request.form['code'])
+    else:
+        return "Get request not valid."
