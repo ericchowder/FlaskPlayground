@@ -72,3 +72,21 @@ def your_url():
     # Non-Post requests    
     else:
         return redirect(url_for('home'))
+
+# Assigns URL to a string variable called code
+@app.route('/<string:code>')
+def redirect_to_url(code):
+    # Check to make sure url json file exists
+    if os.path.exists('urls_list.json'):
+        # open url json file
+        with open('urls_list.json') as urls_file:
+            # loads urls into variable
+            urls = json.load(urls_file)
+            # Check if URL exists in json url list
+            # Checks all "first layer" keys, eg google, mask
+            if code in urls.keys():
+                # Make sure it's URL and not file upload
+                # Checks "second layer" key for specified "code" (which is first layer key)
+                if 'url' in urls[code].keys():
+                    # Redirects to key's definition in dictionary
+                    return redirect(urls[code]['url'])
