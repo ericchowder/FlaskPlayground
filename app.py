@@ -1,6 +1,6 @@
 # render_template comes from "jinja"
 from flask import Flask, render_template, request, redirect
-from flask import url_for, flash, abort
+from flask import url_for, flash, abort, session
 from werkzeug.utils import secure_filename
 import json
 import os.path
@@ -15,8 +15,9 @@ app.secret_key = 'baQfF&gAXO)bC&k'
 @app.route('/')
 def home():
     # Renders home.html template for this route
+    # Stores all sessions into variable "codes"
     # Passes variable "name" to template
-	return render_template('home.html', name="Eric")
+	return render_template('home.html', codes=session.keys(), name="Eric")
 
 
 # About Page
@@ -66,6 +67,9 @@ def your_url():
             with open('urls_list.json','w') as url_file:
                 # Saves url dictionary to url file
                 json.dump(urlsDict, url_file)
+                # Save session (as cookie), session is dictionary of sessions
+                # i.e. {code: True}
+                session[request.form['code']] = True
             # User's entry to "shortname" gets saved into "nameInput"
             # Variable becomes available in your_url.html
             return render_template('your_url.html', nameInput=request.form['code'])
@@ -74,6 +78,7 @@ def your_url():
         return redirect(url_for('home'))
 
 
+# For accessing (redirecting) the shortened URLs
 # Assigns URL to a string variable called code
 @app.route('/<string:code>')
 def redirect_to_url(code):
