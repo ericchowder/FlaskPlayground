@@ -58,7 +58,7 @@ def your_url():
                 # Create name with shortname+filename, secure_filename for safety
                 full_name = request.form['code'] + secure_filename(f.filename)
                 # Saves file to uploads directory
-                f.save(app.root_path + '/uploads/' + full_name)
+                f.save(app.root_path + '/static/user_uploads/' + full_name)
                 # Stores file into dictionary
                 urlsDict[request.form['code']] = {'file':full_name}
 
@@ -90,3 +90,7 @@ def redirect_to_url(code):
                 if 'url' in urls[code].keys():
                     # Redirects to key's definition in dictionary
                     return redirect(urls[code]['url'])
+                # If it's a file upload
+                else:
+                    # Redirects to name for uploaded file within static/user_uploads
+                    return redirect(url_for('static', filename='user_uploads/' + urls[code]['file']))
