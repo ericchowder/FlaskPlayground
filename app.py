@@ -1,6 +1,6 @@
 # render_template comes from "jinja"
 from flask import Flask, render_template, request, redirect
-from flask import url_for, flash
+from flask import url_for, flash, abort
 from werkzeug.utils import secure_filename
 import json
 import os.path
@@ -73,6 +73,7 @@ def your_url():
     else:
         return redirect(url_for('home'))
 
+
 # Assigns URL to a string variable called code
 @app.route('/<string:code>')
 def redirect_to_url(code):
@@ -94,3 +95,11 @@ def redirect_to_url(code):
                 else:
                     # Redirects to name for uploaded file within static/user_uploads
                     return redirect(url_for('static', filename='user_uploads/' + urls[code]['file']))
+    # 404 error if page not found
+    return abort(404)
+
+
+# 404 Error handler
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('page_not_found.html'), 404
