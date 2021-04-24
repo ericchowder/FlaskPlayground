@@ -1,15 +1,12 @@
+<!-- Allows use of blocks-->
+{% extends 'base.html' %}
+
+{% block title %}Home Page of Flask Playground{% endblock%}
+
+{% block main %}
+
 <h1>Home Page for URL Shortener</h1>
-
 <h2>Created by {{ name }}</h2>
-
-<!-- 
-  Jinja way of embedded code.
-  Flashed messages is built into flask,
-  this loops through all flashed messages.
--->
-{% for message in get_flashed_messages() %}
-<h2>{{ message }}</h2>
-{% endfor %}
 
 <!-- 
   Submitting goes to the form action/link.
@@ -51,3 +48,4 @@
   {% endfor %}
 </ul>
 {% endif %}
+{% endblock %}

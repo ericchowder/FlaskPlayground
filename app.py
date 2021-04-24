@@ -1,6 +1,6 @@
 # render_template comes from "jinja"
 from flask import Flask, render_template, request, redirect
-from flask import url_for, flash, abort, session
+from flask import url_for, flash, abort, session, jsonify
 from werkzeug.utils import secure_filename
 import json
 import os.path
@@ -108,3 +108,9 @@ def redirect_to_url(code):
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template('page_not_found.html'), 404
+
+
+# Api for displaying session
+@app.route('/api')
+def session_api():
+    return jsonify(list(session.keys()))

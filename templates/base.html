@@ -1,0 +1,20 @@
+<!-- Other templates can extend this template-->
+
+<!-- Changes title of page (tab name)-->
+<head>
+  <title>{% block title%}{% endblock%}</title>
+</head>
+
+<!-- 
+  Jinja way of embedded code.
+  Flashed messages is built into flask,
+  this loops through all flashed messages.
+-->
+{% for message in get_flashed_messages() %}
+<h2>{{ message }}</h2>
+{% endfor %}
+
+<!-- Name of block -->
+{% block main %}
+<!-- Always have ot end block-->
+{% endblock %}
