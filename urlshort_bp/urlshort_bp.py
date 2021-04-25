@@ -1,18 +1,16 @@
 # render_template comes from "jinja"
-from flask import Flask, render_template, request, redirect
-from flask import url_for, flash, abort, session, jsonify
+from flask import render_template, request, redirect, url_for
+from flask import flash, abort, session, jsonify, Blueprint
 from werkzeug.utils import secure_filename
 import json
 import os.path
 
-
-# Passes env var name for app to initialize app
-app = Flask(__name__)
-app.secret_key = 'baQfF&gAXO)bC&k'
+# Identifies Flask Blueprint
+bp = Blueprint('urlshort_bp',__name__)
 
 
 # Home Page
-@app.route('/')
+@bp.route('/')
 def home():
     # Renders home.html template for this route
     # Stores all sessions into variable "codes"
@@ -21,13 +19,13 @@ def home():
 
 
 # About Page
-@app.route('/about')
+@bp.route('/about')
 def about():
     return "This will be a URL shortener"
 
 
 # Redirect after shortening URL
-@app.route('/your-url', methods=['GET','POST'])
+@bp.route('/your-url', methods=['GET','POST'])
 def your_url():
     # Post requests
     if request.method == 'POST':
@@ -44,7 +42,7 @@ def your_url():
         # If URL name already exists, go back to home page
         if request.form['code'] in urlsDict.keys():
             flash("Name already taken, please select new name.")
-            return redirect(url_for('home'))
+            return redirect(url_for('urlshort_bp.home'))
 
         # If new URL name, continue
         else:
@@ -59,7 +57,7 @@ def your_url():
                 # Create name with shortname+filename, secure_filename for safety
                 full_name = request.form['code'] + secure_filename(f.filename)
                 # Saves file to uploads directory
-                f.save(app.root_path + '/static/user_uploads/' + full_name)
+                f.save(bp.root_path + '/urlshort_bp/static/user_uploads/' + full_name)
                 # Stores file into dictionary
                 urlsDict[request.form['code']] = {'file':full_name}
 
@@ -75,12 +73,12 @@ def your_url():
             return render_template('your_url.html', nameInput=request.form['code'])
     # Non-Post requests    
     else:
-        return redirect(url_for('home'))
+        return redirect(url_for('urlshort_bp.home'))
 
 
 # For accessing (redirecting) the shortened URLs
 # Assigns URL to a string variable called code
-@app.route('/<string:code>')
+@bp.route('/<string:code>')
 def redirect_to_url(code):
     # Check to make sure url json file exists
     if os.path.exists('urls_list.json'):
@@ -105,12 +103,12 @@ def redirect_to_url(code):
 
 
 # 404 Error handler
-@app.errorhandler(404)
+@bp.errorhandler(404)
 def page_not_found(error):
     return render_template('page_not_found.html'), 404
 
 
 # Api for displaying session
-@app.route('/api')
+@bp.route('/api')
 def session_api():
     return jsonify(list(session.keys()))
