@@ -24,6 +24,12 @@ def about():
     return "This will be a URL shortener"
 
 
+# Profile Page
+@bp.route('/profile')
+def profile():
+    return "This will be your profile page"
+
+
 # Redirect after shortening URL
 @bp.route('/your-url', methods=['GET','POST'])
 def your_url():
