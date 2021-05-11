@@ -1,6 +1,8 @@
-from flask import Flask
+from flask import Flask, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 
+from .urlshort_bp import bp
+from .auth import auth
 
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy()
@@ -10,9 +12,10 @@ def create_app(test_config=None):
 	app = Flask(__name__)
 	app.secret_key = 'baQfF&gAXO)bC&k'
 
-	# Registers blueprint
-	from . import urlshort_bp
-	app.register_blueprint(urlshort_bp.bp)
+	# Registers blueprin
+
+	app.register_blueprint(bp)
+	app.register_blueprint(auth)
 
 	"""
 	Auth+DB tutorial stuff

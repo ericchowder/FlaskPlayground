@@ -6,7 +6,7 @@ import json
 import os.path
 
 # Identifies Flask Blueprint
-bp = Blueprint('urlshort_bp',__name__)
+bp = Blueprint('bp',__name__)
 
 
 # Home Page
@@ -22,12 +22,6 @@ def home():
 @bp.route('/about')
 def about():
     return "This will be a URL shortener"
-
-
-# Profile Page
-@bp.route('/profile')
-def profile():
-    return "This will be your profile page"
 
 
 # Redirect after shortening URL
@@ -118,3 +112,22 @@ def page_not_found(error):
 @bp.route('/api')
 def session_api():
     return jsonify(list(session.keys()))
+
+
+"""
+FOR TESTING LOGINS HERE
+"""
+# Login Test Page
+@bp.route('/login-test-page')
+def testpage():
+    return render_template('test_base.html')
+
+# Index Test Page
+@bp.route('/index-test-page')
+def indexpage():
+    return render_template('test_base.html')
+
+# Profile Page
+@bp.route('/profile-test-page')
+def profilepage():
+    return "This will be your profile page"
