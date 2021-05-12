@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 from .urlshort_bp import bp
 from .auth import auth
+from .users import users
 
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy()
@@ -16,6 +17,7 @@ def create_app(test_config=None):
 
 	app.register_blueprint(bp)
 	app.register_blueprint(auth)
+	app.register_blueprint(users)
 
 	"""
 	Auth+DB tutorial stuff
