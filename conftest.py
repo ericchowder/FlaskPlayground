@@ -1,3 +1,5 @@
+# For test cases
+
 import pytest
 from urlshort_bp import create_app
 
