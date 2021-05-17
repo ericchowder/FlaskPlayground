@@ -120,7 +120,6 @@ celerybeat.pid
 # Environments
 # .env
 .env/
-.env.local
 .venv/
 env/
 venv/
@@ -161,3 +160,7 @@ Thumbs.db
 
 
 # End of https://www.toptal.com/developers/gitignore/api/django
+
+# Added by Eric
+.env.local
+*.db
