@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, request, jsonify
+from flask import Flask, Blueprint, json, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import sqlalchemy
 import uuid
@@ -71,9 +71,20 @@ def create_app(test_config=None):
 		return jsonify({'users' : output})
 
 	# Returns one specified user
-	@app.route('/user/<user_id>', methods=['GET'])
-	def get_one_user():
-		return ''
+	@app.route('/user/<public_id>', methods=['GET'])
+	def get_one_user(public_id):
+		# Query for first public id match
+		user = User.query.filter_by(public_id=public_id).first()
+		# If specified user does not exist
+		if not user:
+			return jsonify({'message' : 'No user found!'})
+		# If found, grab user poperty to return
+		user_data = {}
+		user_data['public_id'] = user.public_id
+		user_data['name'] = user.name
+		user_data['password'] = user.password
+		user_data['admin'] = user.admin
+		return jsonify({'user' : user_data})
 
 	@app.route('/user', methods=['POST'])
 	def create_user():
@@ -88,12 +99,12 @@ def create_app(test_config=None):
 		db.session.commit()
 		return jsonify({'message' : 'New user created!'})
 
-	@app.route('/user<user_id>', methods=['POST'])
-	def promote_user():
+	@app.route('/user<public_id>', methods=['POST'])
+	def promote_user(public_id):
 		return ''
 
-	@app.route('/user<user_id>', methods=['DELETE'])
-	def delete():
+	@app.route('/user<public_id>', methods=['DELETE'])
+	def delete(public_id):
 		return ''
 	
 
