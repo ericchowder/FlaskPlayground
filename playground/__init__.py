@@ -1,6 +1,8 @@
-from flask import Flask, Blueprint
+from flask import Flask, Blueprint, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import sqlalchemy
+import uuid
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from .urlshort_bp import bp
 from .auth import auth
@@ -17,7 +19,7 @@ load_dotenv(dotenv_path="./playground/.env.local")
 def create_app(test_config=None):
 	# Passes env var name for app to initialize app
 	app = Flask(__name__)
-	app.secret_key = 'baQfF&gAXO)bC&k'
+	app.secret_key = os.environ.get("SECRET_KEY", "")
 
 	# SQL Config stuff
 	app.config["SECRET_KEY"] = "mysecretkey"
@@ -34,7 +36,46 @@ def create_app(test_config=None):
 		password = db.Column(db.String(80))
 		admin = db.Column(db.Boolean)
 
-	# Registers blueprint
+	class Todo(db.Model):
+		id = db.Column(db.Integer, primary_key=True)
+		text = db.Column(db.String(50))
+		complete = db.Column(db.Boolean)
+		user_id = db.Column(db.Integer)
+
+	##############
+	### ROUTES ###
+	##############
+	# Home
+	@app.route('/', methods=['GET'])
+	def home():
+		return 'Hello World'
+
+	# Returns all existing users
+	@app.route('/user', methods=['GET'])
+	def get_all_users():
+		return ''
+
+	# Returns one specified user
+	@app.route('/user/<user_id>', methods=['GET'])
+	def get_one_user():
+		return 'hi'
+
+	@app.route('/user', methods=['POST'])
+	def create_user():
+		return ''
+
+	@app.route('/user<user_id>', methods=['POST'])
+	def promote_user():
+		return ''
+
+	@app.route('/user<user_id>', methods=['DELETE'])
+	def delete():
+		return ''
+	
+
+	###########################
+	### BLUE PRINT REGISTER ###
+	###########################
 	app.register_blueprint(bp)
 	app.register_blueprint(auth, url_prefix='/auth')
 	app.register_blueprint(users)
