@@ -53,7 +53,22 @@ def create_app(test_config=None):
 	# Returns all existing users
 	@app.route('/user', methods=['GET'])
 	def get_all_users():
-		return ''
+		# Create a table of users to access
+		users = User.query.all()
+		# List of users to output
+		output = []
+		# Loop through users in users table
+		for user in users:
+			# Dictionary to store data of current user
+			user_data = {}
+			# Store each property (as specified from User class)
+			user_data['public_id'] = user.public_id
+			user_data['name'] = user.name
+			user_data['password'] = user.password
+			user_data['admin'] = user.admin
+			# Append current user to output list
+			output.append(user_data)
+		return jsonify({'users' : output})
 
 	# Returns one specified user
 	@app.route('/user/<user_id>', methods=['GET'])
