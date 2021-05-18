@@ -99,11 +99,19 @@ def create_app(test_config=None):
 		db.session.commit()
 		return jsonify({'message' : 'New user created!'})
 
-	@app.route('/user<public_id>', methods=['POST'])
+	@app.route('/user/<public_id>', methods=['PUT'])
 	def promote_user(public_id):
-		return ''
+		# Query for first public id match
+		user = User.query.filter_by(public_id=public_id).first()
+		# If specified user does not exist
+		if not user:
+			return jsonify({'message' : 'No user found!'})
+		# Set user as admin
+		user.admin = True
+		db.session.commit()
+		return jsonify({'message' : user.name + ' has been promoted'})
 
-	@app.route('/user<public_id>', methods=['DELETE'])
+	@app.route('/user/<public_id>', methods=['DELETE'])
 	def delete(public_id):
 		return ''
 	
