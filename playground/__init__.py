@@ -113,7 +113,16 @@ def create_app(test_config=None):
 
 	@app.route('/user/<public_id>', methods=['DELETE'])
 	def delete(public_id):
-		return ''
+		# Query for first public id match
+		user = User.query.filter_by(public_id=public_id).first()
+		# If specified user does not exist
+		if not user:
+			return jsonify({'message' : 'No user found!'})
+		name = user.name
+		# Delete specified user
+		db.session.delete(user)
+		db.session.commit()
+		return jsonify({'message' : name + ' has been deleted.'})
 	
 
 	###########################
