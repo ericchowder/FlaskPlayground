@@ -1,11 +1,18 @@
 from flask import Blueprint, json, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+import sqlalchemy
 import uuid
 # Extensions
 from .database import db
 
+# Initialize file as blueprint
 users = Blueprint('users', __name__)
 
+##########################
+### CLASS DECLARATIONS ###
+##########################
+# Basic user properties
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     public_id = db.Column(db.String(50), unique=True)
@@ -13,12 +20,16 @@ class User(db.Model):
     password = db.Column(db.String(80))
     admin = db.Column(db.Boolean)
 
+# Properties of todo tasks
 class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(50))
     complete = db.Column(db.Boolean)
     user_id = db.Column(db.Integer)
 
+##############
+### ROUTES ###
+##############
 @users.route('/login')
 def login():
     return 'login here!'

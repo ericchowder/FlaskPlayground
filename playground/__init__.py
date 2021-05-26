@@ -1,7 +1,4 @@
-from flask import Flask, Blueprint
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
-import sqlalchemy
+from flask import Flask
 import os
 # Extensions
 from .database import db
@@ -15,7 +12,7 @@ from dotenv import load_dotenv
 # Load .env.local file and specify relative path
 load_dotenv(dotenv_path="./playground/.env.local") 
 
-
+# App starts here
 def create_app(test_config='settings.py'):
 	# Passes env var name for app to initialize app
 	app = Flask(__name__)
@@ -66,6 +63,3 @@ def create_app(test_config='settings.py'):
 	"""
 
 	return app
-
-# app = create_app()
-# db = SQLAlchemy(app)
