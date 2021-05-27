@@ -1,13 +1,24 @@
-from flask import Blueprint, json, request, jsonify
+from flask import Blueprint, json, request, jsonify, make_response
+from flask.helpers import make_response
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlalchemy
 import uuid
+import datetime
+import jwt
+import os
 # Extensions
 from .database import db
 
 # Initialize file as blueprint
 users = Blueprint('users', __name__)
+
+# SQL Config stuff
+'''
+users.config["SECRET_KEY"] = "mysecretkey"
+users.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("SQLITE_URI", "")
+users.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+'''
 
 ##########################
 ### CLASS DECLARATIONS ###
@@ -32,7 +43,29 @@ class Todo(db.Model):
 ##############
 @users.route('/login')
 def login():
-    return 'login here!'
+    # Retrieve auth info from request
+    auth = request.authorization
+    # Ensure auth info complete
+    if not auth or not auth.username or not auth.password:
+        # Return 401 error with WWW-Authenticate header
+        return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+    # Get user info (first user, there should only be 1 user anyways)
+    user = User.query.filter_by(name=auth.username).first()
+    # If no user in request, return 401
+    if not user:
+        return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required"'})
+    # Check password (user from db, auth from req)
+    if check_password_hash(user.password, auth.password):
+        # Create token
+        # arg1: Use public id to not expose user's id
+        # arg2: Set expiration - relative to utc time, currently set to +30min
+        # arg3: Pass in secret key to encode token
+        #token = jwt.encode({'public_id' : user.public_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, users.config['SECRET_KEY'])
+        # respond with token as json
+        #return jsonify({'token' : token.decode('UTF-8')})
+        return "password return here"
+    # if password incorrect, return 401
+    return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required"'})
 
 # Returns all existing users
 @users.route('/user', methods=['GET'])
