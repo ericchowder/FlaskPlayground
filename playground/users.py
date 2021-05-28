@@ -9,6 +9,7 @@ import jwt
 import os
 # Extensions
 from .database import db
+from .config import DevelopmentConfig
 
 # Initialize file as blueprint
 users = Blueprint('users', __name__)
@@ -60,10 +61,10 @@ def login():
         # arg1: Use public id to not expose user's id
         # arg2: Set expiration - relative to utc time, currently set to +30min
         # arg3: Pass in secret key to encode token
-        #token = jwt.encode({'public_id' : user.public_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, users.config['SECRET_KEY'])
+        token = jwt.encode({'public_id' : user.public_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, DevelopmentConfig.SECRET_KEY)
         # respond with token as json
-        #return jsonify({'token' : token.decode('UTF-8')})
-        return "password return here"
+        #return jsonify({'token' : token.decode('UTF-8')}) <- no need to decode apparently
+        return jsonify({'token' : token})
     # if password incorrect, return 401
     return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required"'})
 

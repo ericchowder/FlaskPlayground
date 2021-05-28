@@ -13,16 +13,19 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path="./playground/.env.local") 
 
 # App starts here
-def create_app(test_config='settings.py'):
+def create_app():
 	# Passes env var name for app to initialize app
 	app = Flask(__name__)
 	app.secret_key = os.environ.get("SECRET_KEY", "")
 
+	app.config.from_object('playground.config.DevelopmentConfig')
+	'''
 	# SQL Config stuff
 	app.config["SECRET_KEY"] = "mysecretkey"
 	app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("SQLITE_URI", "")
 	app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-	app.config.from_pyfile(test_config)
+	'''
+	#app.config.from_pyfile(test_config)
 	# init SQLAlchemy so we can use it later in our models
 	db.init_app(app)
 
