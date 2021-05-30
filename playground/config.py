@@ -13,5 +13,8 @@ class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_DATABASE_URI = os.environ.get("SQLITE_URI", "")
 
+class TestingConfig(BaseConfig):
+    pass
+
 class ProductionConfig(BaseConfig):
     pass
