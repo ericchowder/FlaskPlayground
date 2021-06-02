@@ -2,6 +2,7 @@ from flask import Blueprint, json, request, jsonify, make_response
 from flask.helpers import make_response
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
 import uuid, datetime, jwt
 # Extensions
 from playground.database import db
@@ -37,6 +38,35 @@ class Todo(db.Model):
     complete = db.Column(db.Boolean)
     user_id = db.Column(db.Integer)
 
+# Decorator for checking token
+# Function that gets decorated is passed in
+def token_required(f):
+    @wraps(f)
+    # Decorator function(position args, keyword args)
+    def decorated(*args, **kwargs):
+        token = None
+        # Check for x-access-token in request headers
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+        # If not token in header, return missing 401 message
+        if not token:
+            return jsonify({'message' : 'Token is missing!'}), 401
+        # Uses jwt to decode token, checks for validity of decoded token
+        try:
+            print("DECODE KEY: " + app.config['SECRET_KEY'])
+            # Stores decoded token (using secret key)
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+            print("DECODE KEY: " + app.config['SECRET_KEY'])
+            print("data is: ", data)
+            # Query db for user that the public id and token belongs to 
+            current_user = User.query.filter_by(public_id=data['public_id']).first()
+        except:
+            # Try fails, returns invalid 401 message
+            return jsonify({'message' : 'Token is invalid!'}), 401
+        # Passes user back to route, along with function's args (I think)
+        return f(current_user, *args, **kwargs)
+    return decorated
+
 ##############
 ### ROUTES ###
 ##############
@@ -59,7 +89,8 @@ def login():
         # arg1: Use public id to not expose user's id
         # arg2: Set expiration - relative to utc time, currently set to +30min
         # arg3: Pass in secret key to encode token
-        token = jwt.encode({'public_id' : user.public_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
+        token = jwt.encode({'public_id' : user.public_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'], algorithm="HS256")
+        print("ENCODE KEY: " + app.config['SECRET_KEY'])
         # respond with token as json
         #return jsonify({'token' : token.decode('UTF-8')}) <- no need to decode apparently
         return jsonify({'token' : token})
@@ -68,7 +99,11 @@ def login():
 
 # Returns all existing users
 @users.route('/user', methods=['GET'])
-def get_all_users():
+@token_required
+def get_all_users(current_user):
+    # Ensure user is admin to access route
+    if not current_user.admin:
+        return jsonify({'message' : 'Cannot perform that function!'})
     # Create a table of users to access
     users = User.query.all()
     # List of users to output
@@ -88,7 +123,8 @@ def get_all_users():
 
 # Returns one specified user
 @users.route('/user/<public_id>', methods=['GET'])
-def get_one_user(public_id):
+@token_required
+def get_one_user(current_user, public_id):
     # Query for first public id match
     user = User.query.filter_by(public_id=public_id).first()
     # If specified user does not exist
@@ -103,7 +139,8 @@ def get_one_user(public_id):
     return jsonify({'user' : user_data})
 
 @users.route('/user', methods=['POST'])
-def create_user():
+@token_required
+def create_user(current_user):
     # Store request info into data
     data = request.get_json()
     # Hash new user's password (json request 'password' key)
@@ -116,7 +153,8 @@ def create_user():
     return jsonify({'message' : 'New user created!'})
 
 @users.route('/user/<public_id>', methods=['PUT'])
-def promote_user(public_id):
+@token_required
+def promote_user(current_user, public_id):
     # Query for first public id match
     user = User.query.filter_by(public_id=public_id).first()
     # If specified user does not exist
@@ -128,7 +166,8 @@ def promote_user(public_id):
     return jsonify({'message' : user.name + ' has been promoted'})
 
 @users.route('/user/<public_id>', methods=['DELETE'])
-def delete(public_id):
+@token_required
+def delete(current_user, public_id):
     # Query for first public id match
     user = User.query.filter_by(public_id=public_id).first()
     # If specified user does not exist
