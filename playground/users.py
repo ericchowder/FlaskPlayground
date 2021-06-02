@@ -64,9 +64,10 @@ def token_required(f):
         return f(current_user, *args, **kwargs)
     return decorated
 
-##############
-### ROUTES ###
-##############
+###################
+### USER ROUTES ###
+###################
+# User login
 @users.route('/login')
 def login():
     # Retrieve auth info from request
@@ -137,6 +138,7 @@ def get_one_user(current_user, public_id):
     user_data['admin'] = user.admin
     return jsonify({'user' : user_data})
 
+# Creates new user
 @users.route('/user', methods=['POST'])
 @token_required
 def create_user(current_user):
@@ -170,6 +172,7 @@ def promote_user(current_user, public_id):
     db.session.commit()
     return jsonify({'message' : user.name + ' has been promoted'})
 
+# Delete specific user
 @users.route('/user/<public_id>', methods=['DELETE'])
 @token_required
 def delete(current_user, public_id):
@@ -187,3 +190,36 @@ def delete(current_user, public_id):
     db.session.commit()
     return jsonify({'message' : name + ' has been deleted.'})
     
+
+####################
+### TO DO ROUTES ###
+####################
+# Retrieve list of to do items
+@app.route('/todo', methods=['GET'])
+@token_required
+def get_all_todos(current_user):
+    return ''
+
+# Retrieve specific to do item
+@app.route('/todo/<todo_id>', methods=['GET'])
+@token_required
+def get_all_todo(current_user, todo_id):
+    return ''
+
+# Create a new to do
+@app.route('/todo', methods=['POST'])
+@token_required
+def create_todo(current_user):
+    return ''
+
+# Mark to do item as complete
+@app.route('/todo/<todo_id>', methods=['PUT'])
+@token_required
+def complete_todo(current_user, todo_id):
+    return ''
+
+# Delete specific to do
+@app.route('/todo', methods=['GET'])
+@token_required
+def delete_todo(current_user, todo_id):
+    return ''
