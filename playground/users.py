@@ -8,7 +8,7 @@ import uuid, datetime, jwt
 from playground.database import db
 from playground import app
 
-print("KEY IS: " + app.config['SECRET_KEY'])
+#print("KEY IS: " + app.config['SECRET_KEY'])
 
 # Initialize file as blueprint
 users = Blueprint('users', __name__)
@@ -53,11 +53,8 @@ def token_required(f):
             return jsonify({'message' : 'Token is missing!'}), 401
         # Uses jwt to decode token, checks for validity of decoded token
         try:
-            print("DECODE KEY: " + app.config['SECRET_KEY'])
             # Stores decoded token (using secret key)
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-            print("DECODE KEY: " + app.config['SECRET_KEY'])
-            print("data is: ", data)
             # Query db for user that the public id and token belongs to 
             current_user = User.query.filter_by(public_id=data['public_id']).first()
         except:
@@ -90,7 +87,6 @@ def login():
         # arg2: Set expiration - relative to utc time, currently set to +30min
         # arg3: Pass in secret key to encode token
         token = jwt.encode({'public_id' : user.public_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'], algorithm="HS256")
-        print("ENCODE KEY: " + app.config['SECRET_KEY'])
         # respond with token as json
         #return jsonify({'token' : token.decode('UTF-8')}) <- no need to decode apparently
         return jsonify({'token' : token})
@@ -103,7 +99,7 @@ def login():
 def get_all_users(current_user):
     # Ensure user is admin to access route
     if not current_user.admin:
-        return jsonify({'message' : 'Cannot perform that function!'})
+        return jsonify({'message' : 'Cannot perform that function, requires admin!'})
     # Create a table of users to access
     users = User.query.all()
     # List of users to output
@@ -125,6 +121,9 @@ def get_all_users(current_user):
 @users.route('/user/<public_id>', methods=['GET'])
 @token_required
 def get_one_user(current_user, public_id):
+    # Ensure user is admin to access route
+    if not current_user.admin:
+        return jsonify({'message' : 'Cannot perform that function, requires admin!'})
     # Query for first public id match
     user = User.query.filter_by(public_id=public_id).first()
     # If specified user does not exist
@@ -141,6 +140,9 @@ def get_one_user(current_user, public_id):
 @users.route('/user', methods=['POST'])
 @token_required
 def create_user(current_user):
+    # Ensure user is admin to access route
+    if not current_user.admin:
+        return jsonify({'message' : 'Cannot perform that function, requires admin!'})
     # Store request info into data
     data = request.get_json()
     # Hash new user's password (json request 'password' key)
@@ -155,6 +157,9 @@ def create_user(current_user):
 @users.route('/user/<public_id>', methods=['PUT'])
 @token_required
 def promote_user(current_user, public_id):
+    # Ensure user is admin to access route
+    if not current_user.admin:
+        return jsonify({'message' : 'Cannot perform that function, requires admin!'})
     # Query for first public id match
     user = User.query.filter_by(public_id=public_id).first()
     # If specified user does not exist
@@ -168,6 +173,9 @@ def promote_user(current_user, public_id):
 @users.route('/user/<public_id>', methods=['DELETE'])
 @token_required
 def delete(current_user, public_id):
+    # Ensure user is admin to access route
+    if not current_user.admin:
+        return jsonify({'message' : 'Cannot perform that function, requires admin!'})
     # Query for first public id match
     user = User.query.filter_by(public_id=public_id).first()
     # If specified user does not exist
