@@ -198,7 +198,25 @@ def delete(current_user, public_id):
 @app.route('/todo', methods=['GET'])
 @token_required
 def get_all_todos(current_user):
-    return ''
+    # Ensure user is admin to access route
+    if not current_user.admin:
+        return jsonify({'message' : 'Cannot perform that function, requires admin!'})
+    # Query all todos, store in table to local access
+    todos = Todo.query.all()
+    # List of todos to output
+    output = []
+    # Loop through todos in todos table
+    for todo in todos:
+        # Dictionariy to store data of current todo
+        todo_data = {}
+        # Store each property (as specified from Todo class)
+        todo_data['id'] =  todo.id
+        todo_data['text'] =  todo.text
+        todo_data['complete'] =  todo.complete
+        todo_data['user_id'] =  todo.user_id
+        # Append current todo to output list
+        output.append(todo_data)
+    return jsonify({'todos' : output})
 
 # Retrieve specific to do item
 @app.route('/todo/<todo_id>', methods=['GET'])
@@ -210,7 +228,15 @@ def get_all_todo(current_user, todo_id):
 @app.route('/todo', methods=['POST'])
 @token_required
 def create_todo(current_user):
-    return ''
+    # Store request info into data
+    # required "force=True" to avoid error, google "request.get_json mimetype"
+    data = request.get_json(force=True)
+    # Instantiate new todo item
+    new_todo = Todo(text=data['text'], complete=False, user_id=current_user.id)
+    # Add to db
+    db.session.add(new_todo)
+    db.session.commit()
+    return jsonify({'message' : 'New todo item created!'})
 
 # Mark to do item as complete
 @app.route('/todo/<todo_id>', methods=['PUT'])
