@@ -273,7 +273,15 @@ def complete_todo(current_user, todo_id):
     return jsonify({'message' : 'Todo item has been completed!'})
 
 # Delete specific to do
-@app.route('/todo', methods=['GET'])
+@app.route('/todo/<todo_id>', methods=['DELETE'])
 @token_required
 def delete_todo(current_user, todo_id):
-    return ''
+    # Query db for matching id (to the req' todo_id)
+    todo = Todo.query.filter_by(id=todo_id, user_id=current_user.id).first()
+    # If specified user does not exist
+    if not todo:
+        return jsonify({'message' : 'Todo item not found!'})
+    # Delete specified todo item
+    db.session.delete(todo)
+    db.session.commit()
+    return jsonify({'message' : 'Todo item has been deleted.'})
