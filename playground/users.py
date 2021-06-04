@@ -146,6 +146,7 @@ def create_user(current_user):
     if not current_user.admin:
         return jsonify({'message' : 'Cannot perform that function, requires admin!'})
     # Store request info into data
+    # If erroring out, make sure request body is set to JSON
     data = request.get_json()
     # Hash new user's password (json request 'password' key)
     hashed_password = generate_password_hash(data['password'], method='sha256')
@@ -222,14 +223,30 @@ def get_all_todos(current_user):
 @app.route('/todo/<todo_id>', methods=['GET'])
 @token_required
 def get_all_todo(current_user, todo_id):
-    return ''
+    # Ensure user is admin to access route
+    if not current_user.admin:
+        return jsonify({'message' : 'Cannot perform that function, requires admin!'})
+    # Query for todo item where the id matches the request todo_id
+    # Also query for user_id from db to match current_user from token
+    # ^ ensures that users wont query for other user's todo items
+    todo = Todo.query.filter_by(id=todo_id, user_id=current_user.id).first()
+    # If specified todo item does not exist
+    if not todo:
+        return jsonify({'message' : 'Todo does not exist!'})
+    # If found, grab todo item property to return
+    todo_data = {}
+    todo_data['id'] =  todo.id
+    todo_data['text'] =  todo.text
+    todo_data['complete'] =  todo.complete
+    todo_data['user_id'] =  todo.user_id
+    return jsonify({'todo' : todo_data})
 
 # Create a new to do
 @app.route('/todo', methods=['POST'])
 @token_required
 def create_todo(current_user):
     # Store request info into data
-    # required "force=True" to avoid error, google "request.get_json mimetype"
+    # force=True forces request body to be of type JSON 
     data = request.get_json(force=True)
     # Instantiate new todo item
     new_todo = Todo(text=data['text'], complete=False, user_id=current_user.id)
