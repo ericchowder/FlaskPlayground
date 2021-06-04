@@ -48,6 +48,9 @@ def token_required(f):
         # Check for x-access-token in request headers
         if 'x-access-token' in request.headers:
             token = request.headers['x-access-token']
+            # (worse) alternative of getting token via req args
+            # token = request.args.get('token')
+            # ^ URL = http://127.0.0.1:5000/route?token=eyasdfasdfasdfetcetc
         # If not token in header, return missing 401 message
         if not token:
             return jsonify({'message' : 'Token is missing!'}), 401
