@@ -259,7 +259,18 @@ def create_todo(current_user):
 @app.route('/todo/<todo_id>', methods=['PUT'])
 @token_required
 def complete_todo(current_user, todo_id):
-    return ''
+    # Ensure user is admin to access route
+    if not current_user.admin:
+        return jsonify({'message' : 'Cannot perform that function, requires admin!'})
+    # Query for todo
+    todo = Todo.query.filter_by(id=todo_id, user_id=current_user.id).first()
+    # If specified todo item does not exist
+    if not todo:
+        return jsonify({'message' : 'Todo does not exist!'})
+    # Set todo to complete
+    todo.complete = True
+    db.session.commit()
+    return jsonify({'message' : 'Todo item has been completed!'})
 
 # Delete specific to do
 @app.route('/todo', methods=['GET'])
