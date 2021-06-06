@@ -38,6 +38,24 @@ class Todo(db.Model):
     complete = db.Column(db.Boolean)
     user_id = db.Column(db.Integer)
 
+# Properties for polls
+class Poll(db.Model):
+    # Poll ID
+    id = db.Column(db.Integer, primary_key=True)
+    # Poll Title
+    title = db.Column(db.String(100))
+    # Creator of poll
+    user_id = db.Column(db.Integer)
+    
+class Poll_Options(db.Model):
+    # Option ID
+    id = db.Column(db.Integer, primary_key=True)
+    # Option text
+    title = db.Column(db.String(50))
+    # Poll ID
+    poll_id = db.Column(db.Integer)
+
+
 # Decorator for checking token
 # Function that gets decorated is passed in
 def token_required(f):
